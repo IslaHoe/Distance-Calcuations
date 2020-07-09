@@ -1,6 +1,6 @@
 ##Formulea 
 Great Circle Distance 
-\alpha $\alpha$
+$\sum_{n=1}^{10} n^2$
 
 
 
