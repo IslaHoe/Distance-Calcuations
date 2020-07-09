@@ -1,10 +1,13 @@
 ##Formulea 
-Great Circle Distance --hit 
+Great Circle Distance 
 
-Inline-style: 
-![alt text](https://wikimedia.org/api/rest_v1/media/math/render/svg/87cea288a5b6e80757bc81375c3b6a38a30a5184 "Logo Title Text 1")
+![alt text](https://wikimedia.org/api/rest_v1/media/math/render/svg/d924c72204c36417ad81c90186cf20da997b266f)
 
-
+where 
+* &Delta;&delta; is the difference between the two longitude cordanates
+* &Delta;&lambda; is the difference between the two latitatude coordnates 
+* &delta;1 is the longitude coorgante of the office
+* &delta;2 is the longitude coordante of the customers address
 
 
 ### Decisions 
