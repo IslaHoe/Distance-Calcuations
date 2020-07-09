@@ -1,6 +1,6 @@
 ##Formulea 
 Great Circle Distance 
-
+\alpha
 
 
 
