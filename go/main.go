@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"strconv"
@@ -32,7 +31,6 @@ func calcuateDistance(lat1, lng1 float64) float64 {
 	dist = math.Acos(dist)
 
 	dist = dist * radius
-	fmt.Println("dist: ", dist)
 
 	return dist
 }
@@ -44,38 +42,52 @@ func convertToRadians(degrees float64) float64 {
 
 func check(e error) {
 	if e != nil {
-		panic(e)
+		fmt.Println(e)
+		return
 	}
 }
 
-func main() {
-	file, err := os.Open("customers.json")
-	if err != nil {
-		log.Fatal(err)
+func bubbleSort(IDArray []int) []int {
+	for i := len(IDArray); i > 0; i-- {
+		for j := 1; j < i; j++ {
+			if IDArray[j-1] > IDArray[j] {
+				intermediate := IDArray[j]
+				IDArray[j] = IDArray[j-1]
+				IDArray[j-1] = intermediate
+			}
+		}
 	}
+	fmt.Println(IDArray)
+	return IDArray
+}
+func main() {
+
+	var IDArray []int
+	file, err := os.Open("customers.json")
+	check(err)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	f, err := os.Create("output.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	check(err)
+
 	for scanner.Scan() {
 
-		customerJson := scanner.Text()
+		customerJSON := scanner.Text()
 		var customer Customer
-		json.Unmarshal([]byte(customerJson), &customer)
+		json.Unmarshal([]byte(customerJSON), &customer)
 		lat1, _ := strconv.ParseFloat(customer.Latitude, 64)
 		lng1, _ := strconv.ParseFloat(customer.Longitude, 64)
 		distance := calcuateDistance(lat1, lng1)
 		if distance < 100 {
-			fmt.Printf("%f Kilometers\n", distance)
-
-			f.WriteString(customer.Name)
-			f.WriteString("\n")
+			customerInfo := "Name: " + customer.Name + "ID: " + strconv.Itoa(customer.User_id) + "\n"
+			f.WriteString(customerInfo)
+			IDArray = append(IDArray, customer.User_id)
 
 		}
 	}
+
+	fmt.Println(IDArray)
+	bubbleSort(IDArray)
 
 }
