@@ -10,11 +10,5 @@ where
 * &delta;2 is the longitude coordante of the customers address
 
 
-### Decisions 
-1. Golang is english readable 
-
-
-
-
 
 
