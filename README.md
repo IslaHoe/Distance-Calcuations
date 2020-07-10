@@ -1,4 +1,5 @@
-##Formulea 
+## Formulea 
+
 Great Circle Distance 
 
 ![alt text](https://wikimedia.org/api/rest_v1/media/math/render/svg/d924c72204c36417ad81c90186cf20da997b266f)
