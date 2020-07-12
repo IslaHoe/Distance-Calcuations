@@ -16,6 +16,12 @@ type Customer struct {
 	Longitude string `json:"longitude"`
 }
 
+type CustomerJSON struct {
+	Name string
+	ID   int
+	Dist float64
+}
+
 func calcuateDistance(lat1, lng1 float64) float64 {
 	lat2 := 53.339428
 	lng2 := -6.257664
@@ -46,31 +52,51 @@ func check(e error) {
 		return
 	}
 }
+func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
 
-func bubbleSort(IDArray []int) []int {
-	for i := len(IDArray); i > 0; i-- {
-		for j := 1; j < i; j++ {
-			if IDArray[j-1] > IDArray[j] {
-				intermediate := IDArray[j]
-				IDArray[j] = IDArray[j-1]
-				IDArray[j-1] = intermediate
+	var temp CustomerJSON
+	temp = a
+	a = b
+	b = temp
+
+	return a, b
+
+}
+func quickSort(CustomerArray []CustomerJSON) []CustomerJSON {
+
+	for j := 1; j < len(CustomerArray); j++ {
+		for i := 1; i < len(CustomerArray); i++ {
+			if CustomerArray[i-1].ID > CustomerArray[i].ID {
+				CustomerArray[i-1], CustomerArray[i] = swap(CustomerArray[i-1], CustomerArray[i])
 			}
 		}
+
 	}
-	fmt.Println(IDArray)
-	return IDArray
+
+	writeToFile(CustomerArray)
+	return CustomerArray
+}
+
+func writeToFile(CustomerArray []CustomerJSON) {
+	f, err := os.Create("output.txt")
+	check(err)
+	newLine := CustomerArray
+	_, err = fmt.Fprintln(f, newLine)
+	check(err)
+	err = f.Close()
+	check(err)
 }
 func main() {
 
-	var IDArray []int
+	var CustomerArray []CustomerJSON
+
 	file, err := os.Open("customers.json")
 	check(err)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	f, err := os.Create("output.txt")
 	check(err)
-
+	i := 0
 	for scanner.Scan() {
 
 		customerJSON := scanner.Text()
@@ -80,14 +106,10 @@ func main() {
 		lng1, _ := strconv.ParseFloat(customer.Longitude, 64)
 		distance := calcuateDistance(lat1, lng1)
 		if distance < 100 {
-			customerInfo := "Name: " + customer.Name + "ID: " + strconv.Itoa(customer.User_id) + "\n"
-			f.WriteString(customerInfo)
-			IDArray = append(IDArray, customer.User_id)
-
+			book := CustomerJSON{Name: customer.Name, ID: customer.User_id, Dist: distance}
+			CustomerArray = append(CustomerArray, book)
+			i++
 		}
 	}
-
-	fmt.Println(IDArray)
-	bubbleSort(IDArray)
-
+	quickSort(CustomerArray)
 }
