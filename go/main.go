@@ -11,7 +11,7 @@ import (
 
 type Customer struct {
 	Latitude  string `json:"latitude"`
-	User_id   int    `json:"user_id"`
+	UserID    int    `json:"user_id"`
 	Name      string `json:"name"`
 	Longitude string `json:"longitude"`
 }
@@ -19,7 +19,6 @@ type Customer struct {
 type CustomerJSON struct {
 	Name string
 	ID   int
-	Dist float64
 }
 
 func calcuateDistance(lat1, lng1 float64) float64 {
@@ -43,6 +42,7 @@ func calcuateDistance(lat1, lng1 float64) float64 {
 
 func convertToRadians(degrees float64) float64 {
 	radians := degrees * (math.Pi / 180)
+
 	return radians
 }
 
@@ -52,16 +52,16 @@ func check(e error) {
 		return
 	}
 }
-func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
 
+func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
 	var temp CustomerJSON
 	temp = a
 	a = b
 	b = temp
 
 	return a, b
-
 }
+
 func quickSort(CustomerArray []CustomerJSON) []CustomerJSON {
 
 	for j := 1; j < len(CustomerArray); j++ {
@@ -78,11 +78,16 @@ func quickSort(CustomerArray []CustomerJSON) []CustomerJSON {
 }
 
 func writeToFile(CustomerArray []CustomerJSON) {
+
 	f, err := os.Create("output.txt")
 	check(err)
-	newLine := CustomerArray
-	_, err = fmt.Fprintln(f, newLine)
-	check(err)
+
+	for i := 1; i < len(CustomerArray); i++ {
+		newLine := CustomerArray[i]
+		_, err = fmt.Fprintln(f, newLine)
+		check(err)
+	}
+
 	err = f.Close()
 	check(err)
 }
@@ -106,8 +111,8 @@ func main() {
 		lng1, _ := strconv.ParseFloat(customer.Longitude, 64)
 		distance := calcuateDistance(lat1, lng1)
 		if distance < 100 {
-			book := CustomerJSON{Name: customer.Name, ID: customer.User_id, Dist: distance}
-			CustomerArray = append(CustomerArray, book)
+			customerInfo := CustomerJSON{Name: customer.Name, ID: customer.UserID}
+			CustomerArray = append(CustomerArray, customerInfo)
 			i++
 		}
 	}
