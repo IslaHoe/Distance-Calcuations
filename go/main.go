@@ -28,6 +28,12 @@ func check(e error) {
 		return
 	}
 }
+
+func convertToRadians(degrees float64) float64 {
+	radians := degrees * (math.Pi / 180)
+	return radians
+}
+
 func calcuateDistance(lat1, lng1 float64) float64 {
 	lat2 := 53.339428
 	lng2 := -6.257664
@@ -45,12 +51,6 @@ func calcuateDistance(lat1, lng1 float64) float64 {
 	dist = dist * radius
 
 	return dist
-}
-
-func convertToRadians(degrees float64) float64 {
-	radians := degrees * (math.Pi / 180)
-
-	return radians
 }
 
 func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
