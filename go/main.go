@@ -21,6 +21,13 @@ type CustomerJSON struct {
 	ID   int
 }
 
+//place error checking in seperate function to make the full code more consise
+func check(e error) {
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+}
 func calcuateDistance(lat1, lng1 float64) float64 {
 	lat2 := 53.339428
 	lng2 := -6.257664
@@ -44,13 +51,6 @@ func convertToRadians(degrees float64) float64 {
 	radians := degrees * (math.Pi / 180)
 
 	return radians
-}
-
-func check(e error) {
-	if e != nil {
-		fmt.Println(e)
-		return
-	}
 }
 
 func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
@@ -91,10 +91,8 @@ func writeToFile(CustomerArray []CustomerJSON) {
 	err = f.Close()
 	check(err)
 }
-func main() {
 
-	var CustomerArray []CustomerJSON
-
+func writeCustArray(CustomerArray []CustomerJSON) []CustomerJSON {
 	file, err := os.Open("customers.json")
 	check(err)
 	defer file.Close()
@@ -116,5 +114,14 @@ func main() {
 			i++
 		}
 	}
+
+	return CustomerArray
+
+}
+
+func main() {
+
+	var CustomerArray []CustomerJSON
+	CustomerArray = writeCustArray(CustomerArray)
 	quickSort(CustomerArray)
 }
