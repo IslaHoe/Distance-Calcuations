@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
+//Customer type based on paramaters in customers.txt
 type Customer struct {
 	Latitude  string `json:"latitude"`
 	UserID    int    `json:"user_id"`
@@ -16,25 +19,14 @@ type Customer struct {
 	Longitude string `json:"longitude"`
 }
 
-type CustomerJSON struct {
-	Name string
-	ID   int
-}
-
-//place error checking in seperate function to make the full code more consise
-func check(e error) {
-	if e != nil {
-		fmt.Println(e)
-		return
-	}
-}
-
+//convert lat and lng coords to radians
 func convertToRadians(degrees float64) float64 {
 	radians := degrees * (math.Pi / 180)
 	return radians
 }
 
-func calcuateDistance(lat1, lng1 float64) float64 {
+//calcuate the distance between the office at (53.339428,-6.257664) and the customer coords
+func calculateDistance(lat1, lng1 float64) float64 {
 	lat2 := 53.339428
 	lng2 := -6.257664
 	radius := 6373.0
@@ -53,75 +45,88 @@ func calcuateDistance(lat1, lng1 float64) float64 {
 	return dist
 }
 
-func swap(a, b CustomerJSON) (CustomerJSON, CustomerJSON) {
-	var temp CustomerJSON
-	temp = a
-	a = b
-	b = temp
-
-	return a, b
+// calcuate the distance between two sets of coordnates
+func checkDistance(customer Customer) float64 {
+	lat1, _ := strconv.ParseFloat(customer.Latitude, 64)
+	lng1, _ := strconv.ParseFloat(customer.Longitude, 64)
+	distance := calculateDistance(lat1, lng1)
+	return distance
 }
 
-func quickSort(CustomerArray []CustomerJSON) []CustomerJSON {
-
-	for j := 1; j < len(CustomerArray); j++ {
-		for i := 1; i < len(CustomerArray); i++ {
-			if CustomerArray[i-1].ID > CustomerArray[i].ID {
-				CustomerArray[i-1], CustomerArray[i] = swap(CustomerArray[i-1], CustomerArray[i])
-			}
-		}
-
+//fetch customoers from customers.txt and place in array for ease of use
+func fetchCustomers() (CustomerArray []Customer) {
+	file, err := os.Open("customers.txt")
+	if err != nil {
+		log.Println(err)
 	}
 
-	writeToFile(CustomerArray)
-	return CustomerArray
-}
-
-func writeToFile(CustomerArray []CustomerJSON) {
-
-	f, err := os.Create("output.txt")
-	check(err)
-
-	for i := 1; i < len(CustomerArray); i++ {
-		newLine := CustomerArray[i]
-		_, err = fmt.Fprintln(f, newLine)
-		check(err)
-	}
-
-	err = f.Close()
-	check(err)
-}
-
-func writeCustArray(CustomerArray []CustomerJSON) []CustomerJSON {
-	file, err := os.Open("customers.json")
-	check(err)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	check(err)
-	i := 0
-	for scanner.Scan() {
+	if err != nil {
+		log.Println(err)
+	}
 
-		customerJSON := scanner.Text()
-		var customer Customer
-		json.Unmarshal([]byte(customerJSON), &customer)
-		lat1, _ := strconv.ParseFloat(customer.Latitude, 64)
-		lng1, _ := strconv.ParseFloat(customer.Longitude, 64)
-		distance := calcuateDistance(lat1, lng1)
+	var customer Customer
+	for scanner.Scan() {
+		customerLn := scanner.Text()
+		json.Unmarshal([]byte(customerLn), &customer)
+		CustomerArray = append(CustomerArray, customer)
+	}
+	return CustomerArray
+}
+
+// remove customers who live outside the 100k radius
+func filterCustomer(customers []Customer) []Customer {
+
+	var filteredCustomers []Customer
+	for i := 1; i < len(customers); i++ {
+		distance := checkDistance(customers[i])
 		if distance < 100 {
-			customerInfo := CustomerJSON{Name: customer.Name, ID: customer.UserID}
-			CustomerArray = append(CustomerArray, customerInfo)
-			i++
+			filteredCustomers = append(filteredCustomers, customers[i])
 		}
 	}
 
-	return CustomerArray
+	return filteredCustomers
 
 }
 
+// write all remaining customers to output.txt
+func writeToFile(customers []Customer) {
+
+	f, err := os.Create("output.txt")
+	if err != nil {
+		log.Println(err)
+	}
+
+	for i := 0; i < len(customers); i++ {
+		newLine := (strconv.Itoa(customers[i].UserID) + ": " + customers[i].Name)
+		_, err = fmt.Fprintln(f, newLine)
+		if err != nil {
+			log.Println(err)
+		}
+
+	}
+
+	err = f.Close()
+	if err != nil {
+		log.Println(err)
+	}
+
+}
+
+// ByID implements sort.Interface for []Customer based on the ID field.
+type ByID []Customer
+
+// functions to sort the customers by their ID's
+func (a ByID) Len() int           { return len(a) }
+func (a ByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByID) Less(i, j int) bool { return a[i].UserID < a[j].UserID }
+
 func main() {
 
-	var CustomerArray []CustomerJSON
-	CustomerArray = writeCustArray(CustomerArray)
-	quickSort(CustomerArray)
+	customers := fetchCustomers()
+	customers = filterCustomer(customers)
+	sort.Sort(ByID(customers))
+	writeToFile(customers)
 }
