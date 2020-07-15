@@ -15,7 +15,7 @@ If you dont have Go installed please install it from https://golang.org/doc/inst
 **Running the Program**
 1. Ensure Go is installed 
 2. Download the zip file or clone 
-3. Navigate to ~/<your path>/distanceCalcuations
+3. Navigate to ~/< your path >/distanceCalcuations
 4. From the command line simply run `./customers.sh` 
 5. Alternativly run `go build` and then run the excutable file `./<currentDirName>`
 6. To run the test file run `go test`
