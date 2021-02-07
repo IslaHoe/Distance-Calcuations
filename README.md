@@ -1,7 +1,7 @@
 # Distance-Calcuations
 
 **Requirements**
-If you dont have Go installed please install it from https://golang.org/doc/install or if you're on a mac and have brew installed pleas run `brew update&& brew install golang`
+If you dont have Go installed please install it from https://golang.org/doc/install or if you're on a mac and have brew installed pleas run `brew update && brew install golang`
 
 **Directory Structure**
 1. `main.go` is the core file used to run the program 
